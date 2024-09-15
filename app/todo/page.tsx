@@ -1,6 +1,34 @@
+"use client"
+
+import { TodoItem } from "@/components/todo-item";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Verified, X } from "lucide-react";
+import { Todo as TodoT } from "@/models/todo";
+import { Plus } from "lucide-react";
+import { Suspense, use } from "react";
+
+const TodosList = async () => {
+
+	// const todos = use(
+	// 	await fetch("/api/todo?userId=1", {
+	// 		method: "GET",
+	// 	}).then(res => res.json())
+	// ) as TodoT[]
+
+	return (
+		<div className="flex h-[168px] flex-col gap-3 overflow-y-auto">
+			{/* {todos.map((todo) => (
+				<TodoItem
+					key={todo.id}
+					{...todo}
+					isDone={todo.done}
+					onCheck={() => console.log("check")}
+					onDelete={() => console.log("delete")}
+				/>
+			))} */}
+		</div>
+	)
+}
 
 export default function Todo() {
 	return (
@@ -28,19 +56,15 @@ export default function Todo() {
 						</Button>
 					</div>
 
-					<div className="flex flex-col gap-3">
-						<div className="flex justify-between items-center">
-							<p>Purchase milk 🥛</p>
-							<div className="flex gap-1">
-								<button>
-									<Verified color="#F8FAFC" />
-								</button>
-								<button>
-									<X color="#F8FAFC" />
-								</button>
+					<Suspense
+						fallback={
+							<div className="flex justify-center items-center">
+								<p>Loading...</p>
 							</div>
-						</div>
-					</div>
+						}
+					>
+						<TodosList />
+					</Suspense>
 				</div>
 			</div>
 		</div>
