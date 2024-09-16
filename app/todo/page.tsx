@@ -62,12 +62,14 @@ export default function Todo() {
 							className="bg-slate-900 border-none"
 							onChange={(e) => setTitle(e.target.value)}
 							value={title}
+							disabled={isFetchingTodos || isLoadingAddTodo}
 						/>
 
 						<Button
 							className="w-[51px] p-0 bg-slate-900 border-none"
 							variant="secondary"
 							onClick={handleAddTodo}
+							disabled={isFetchingTodos || isLoadingAddTodo}
 						>
 							<Plus color="#F8FAFC" />
 						</Button>
