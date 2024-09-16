@@ -1,17 +1,18 @@
 "use client"
 
-import { useAddTodo, useDeleteTodo, useGetTodosByUserId } from "@/api/controllers/todo";
+import { useAddTodo, useGetTodosByUserId } from "@/api/controllers/todo";
 import { TodoItem } from "@/components/todo-item";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Plus } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/lib/stores/authStore";
 
 export default function Todo() {
 
-	const userId = useMemo(() => Number(localStorage.getItem("userId")), [])
+	const { userId } = useAuthStore()
 
 	const router = useRouter()
 
@@ -19,7 +20,7 @@ export default function Todo() {
 		data: todos,
 		isLoading: isLoadingTodos,
 		isFetching: isFetchingTodos,
-	} = useGetTodosByUserId(userId)
+	} = useGetTodosByUserId(userId as number)
 
 	const {
 		mutateAsync: addTodo,
@@ -29,11 +30,10 @@ export default function Todo() {
 	const [title, setTitle] = useState("");
 
 	const handleAddTodo = async () => {
-		await addTodo({ title, userId }).then(() => setTitle(""))
+		await addTodo({ title, userId: userId as number }).then(() => setTitle(""))
 	}
 
 	const handleExit = () => {
-		localStorage.removeItem("userId")
 		router.push("/")
 	}
 

@@ -4,6 +4,7 @@ import { useLogin } from "@/api/controllers/login"
 import { useRegister } from "@/api/controllers/user"
 import { Input } from "@/components/input"
 import { Button } from "@/components/ui/button"
+import { useAuthStore } from "@/lib/stores/authStore"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 
@@ -19,6 +20,8 @@ export default function Home() {
 		isLoading: isLoadingRegister,
 	} = useRegister()
 
+	const { setUserId } = useAuthStore()
+
 	const [name, setName] = useState("")
 	const [password, setPassword] = useState("")
 	const [entranceType, setEntranceType] = useState<"login" | "register">(
@@ -29,9 +32,9 @@ export default function Home() {
 
 	const handleEntrance = async () => {
 		if (entranceType === "login")
-			await login({ name, password }).then((user) => localStorage.setItem("userId", user.id.toString()))
+			await login({ name, password }).then((user) => setUserId(user.id))
 		else
-			await register({ name, password }).then((user) => localStorage.setItem("userId", user.id.toString()))
+			await register({ name, password }).then((user) => setUserId(user.id))
 
 		router.push("/todo")
 	}

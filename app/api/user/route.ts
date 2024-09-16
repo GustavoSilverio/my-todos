@@ -1,10 +1,20 @@
 import { prisma } from "@/api/services/prisma"
 import { ResponseTypeException } from "@/api/services/utils/exception"
 import { User, UserReq } from "@/models/user"
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import bcrypt from "bcrypt"
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+	const { searchParams } = new URL(request.url)
+	const id = searchParams.get("id")
+	
+	if (id) {
+		const user = (await prisma.user.findUnique({
+			where: { id: Number(id) },
+		})) as User
+		return NextResponse.json(user)
+	}
+
 	const users = (await prisma.user.findMany()) as User[]
 
 	return NextResponse.json(users)
