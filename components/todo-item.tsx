@@ -1,22 +1,36 @@
 "use client"
 
+import { useDeleteTodo, useUpdateTodo } from "@/api/controllers/todo"
 import { Check, X } from "lucide-react"
 
 interface TodoItemProps {
     id: number
     title: string
     isDone: boolean
-    onCheck: (id: number) => void
-    onDelete: (id: number) => void
 }
 
 export const TodoItem = ({
     id,
     title,
     isDone,
-    onCheck,
-    onDelete,
 }: TodoItemProps) => {
+
+    const {
+        mutateAsync: deleteTodo,
+    } = useDeleteTodo()
+
+    const {
+        mutateAsync: updateTodo,
+    } = useUpdateTodo()
+
+    const handleDeleteTodo = async (id: number) => {
+        await deleteTodo(id)
+    }
+
+    const handleUpdateTodo = async (id: number) => {
+        await updateTodo({ id, done: !isDone })
+    }
+
     return (
         <div className="flex justify-between items-center">
             <p
@@ -27,13 +41,13 @@ export const TodoItem = ({
 
             <div className="flex gap-1">
                 <button
-                    onClick={() => onCheck(id)}
+                    onClick={() => handleUpdateTodo(id)}
                 >
                     <Check color="#F8FAFC" />
                 </button>
 
                 <button
-                    onClick={() => onDelete(id)}
+                    onClick={() => handleDeleteTodo(id)}
                 >
                     <X color="#F8FAFC" />
                 </button>

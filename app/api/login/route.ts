@@ -1,5 +1,5 @@
 import { prisma } from "@/api/services/prisma"
-import { ResponseTypeException } from "@/api/services/utils"
+import { ResponseTypeException } from "@/api/services/utils/exception"
 import { UserReq } from "@/models/user"
 import { NextResponse } from "next/server"
 import { User } from "@prisma/client"

@@ -1,41 +1,39 @@
 "use client"
 
+import { useLogin } from "@/api/controllers/login"
+import { useRegister } from "@/api/controllers/user"
 import { Input } from "@/components/input"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
-import { useEffect, useState, useTransition } from "react"
+import { useState } from "react"
 
 export default function Home() {
+
+	const {
+		mutateAsync: login,
+		isLoading: isLoadingLogin,
+	} = useLogin()
+
+	const {
+		mutateAsync: register,
+		isLoading: isLoadingRegister,
+	} = useRegister()
+
+	const [name, setName] = useState("")
+	const [password, setPassword] = useState("")
 	const [entranceType, setEntranceType] = useState<"login" | "register">(
 		"login"
 	)
 
-	const [name, setName] = useState("")
-	const [password, setPassword] = useState("")
-	const [isLoading, startTransition] = useTransition()
-
 	const router = useRouter()
 
 	const handleEntrance = async () => {
-		if (entranceType === "login") {
-			startTransition(async () => {
-				await fetch("/api/login", {
-					method: "POST",
-					body: JSON.stringify({ name, password }),
-				}).then(() => {
-					router.push("/todo")
-				})
-			})
-		} else {
-			startTransition(async () => {
-				await fetch("/api/user", {
-					method: "POST",
-					body: JSON.stringify({ name, password }),
-				}).then(() => {
-					router.push("/todo")
-				})
-			})
-		}
+		if (entranceType === "login")
+			await login({ name, password }).then((user) => localStorage.setItem("userId", user.id.toString()))
+		else
+			await register({ name, password }).then((user) => localStorage.setItem("userId", user.id.toString()))
+
+		router.push("/todo")
 	}
 
 	return (
@@ -72,9 +70,9 @@ export default function Home() {
 			<Button
 				variant="secondary"
 				onClick={handleEntrance}
-				disabled={isLoading}
+				disabled={isLoadingLogin || isLoadingRegister}
 			>
-				{isLoading
+				{isLoadingLogin || isLoadingRegister
 					? "loading..."
 					: entranceType === "login"
 						? "sign in"

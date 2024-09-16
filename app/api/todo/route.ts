@@ -46,15 +46,16 @@ export async function PUT(request: Request) {
     const todo = await prisma.todo.update({
         where: { id },
         data: {
-            done: !done,
+            done,
         }
     })
 
     return NextResponse.json(todo)
 }
 
-export async function DELETE(request: Request) {
-    const { id } = await request.json()
+export async function DELETE(request: NextRequest) {
+    const searchParams = request.nextUrl.searchParams
+    const id = searchParams.get("id")
 
     if (!id) {
         return NextResponse.json({ error: "id is required" }, { status: 400 })

@@ -1,70 +1,110 @@
 "use client"
 
+import { useAddTodo, useDeleteTodo, useGetTodosByUserId } from "@/api/controllers/todo";
 import { TodoItem } from "@/components/todo-item";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Todo as TodoT } from "@/models/todo";
-import { Plus } from "lucide-react";
-import { Suspense, use } from "react";
-
-const TodosList = async () => {
-
-	// const todos = use(
-	// 	await fetch("/api/todo?userId=1", {
-	// 		method: "GET",
-	// 	}).then(res => res.json())
-	// ) as TodoT[]
-
-	return (
-		<div className="flex h-[168px] flex-col gap-3 overflow-y-auto">
-			{/* {todos.map((todo) => (
-				<TodoItem
-					key={todo.id}
-					{...todo}
-					isDone={todo.done}
-					onCheck={() => console.log("check")}
-					onDelete={() => console.log("delete")}
-				/>
-			))} */}
-		</div>
-	)
-}
+import { Skeleton } from "@/components/ui/skeleton";
+import { ArrowLeft, Plus } from "lucide-react";
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Todo() {
-	return (
-		<div className="flex flex-col gap-[10px] p-[10px] w-full max-w-[609px]">
-			<div className="flex gap-2 flex-col">
-				<h1
-					className="text-3xl font-bold"
-				>
-					my-todos ✅
-				</h1>
 
-				<div className="flex flex-col gap-2 w-full">
-					<div className="flex w-full gap-2">
+	const userId = useMemo(() => Number(localStorage.getItem("userId")), [])
+
+	const router = useRouter()
+
+	const {
+		data: todos,
+		isLoading: isLoadingTodos,
+		isFetching: isFetchingTodos,
+	} = useGetTodosByUserId(userId)
+
+	const {
+		mutateAsync: addTodo,
+		isLoading: isLoadingAddTodo,
+	} = useAddTodo()
+
+	const [title, setTitle] = useState("");
+
+	const handleAddTodo = async () => {
+		await addTodo({ title, userId }).then(() => setTitle(""))
+	}
+
+	const handleExit = () => {
+		localStorage.removeItem("userId")
+		router.push("/")
+	}
+
+	return (
+		<div className="flex flex-col gap-3 p-[10px] w-full max-w-[609px]">
+			<div className="flex gap-3 flex-col">
+				<div className="flex items-center gap-2">
+					<button
+						onClick={handleExit}
+					>
+						<ArrowLeft color="#F8FAFC" />
+					</button>
+
+					<h1
+						className="text-3xl font-bold"
+					>
+						my-todos ✅
+					</h1>
+				</div>
+
+				<div className="flex flex-col gap-3 w-full">
+					<div className="flex w-full gap-3">
 						<Input
 							type="text"
 							placeholder="Buy more milk..."
 							className="bg-slate-900 border-none"
+							onChange={(e) => setTitle(e.target.value)}
+							value={title}
 						/>
 
 						<Button
 							className="w-[51px] p-0 bg-slate-900 border-none"
 							variant="secondary"
+							onClick={handleAddTodo}
 						>
 							<Plus color="#F8FAFC" />
 						</Button>
 					</div>
 
-					<Suspense
-						fallback={
-							<div className="flex justify-center items-center">
-								<p>Loading...</p>
-							</div>
-						}
-					>
-						<TodosList />
-					</Suspense>
+					<div className="flex h-[168px] flex-col gap-3 overflow-y-auto">
+						{isLoadingTodos ? (
+							<>
+								{Array.from({ length: 5 }).map((_, index) => (
+									<Skeleton
+										className="w-full h-6"
+										key={index}
+									/>
+								))}
+							</>
+						) : (
+							todos && todos.length > 0 ? (
+								<>
+									{todos.map((todo) => (
+										<TodoItem
+											key={todo.id}
+											isDone={todo.done}
+											{...todo}
+										/>
+									))}
+
+									{(isLoadingAddTodo || isFetchingTodos) &&
+										<Skeleton className="w-full h-6" />
+									}
+								</>
+							) : (
+								<p className="text-center text-slate-400">
+									no todos found :(
+								</p>
+							)
+						)}
+					</div>
 				</div>
 			</div>
 		</div>
