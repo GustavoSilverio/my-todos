@@ -2,6 +2,7 @@ import { Todo, TodoReq, UpdateTodoReq } from "@/models/todo"
 import { useMutation, useQuery } from "react-query"
 import { api } from "../services/axios"
 import { queryClient } from "../services/query-client"
+import { CustomError } from "@/models/error"
 
 export const useGetTodosByUserId = (userId: number) => {
     return useQuery<Todo[]>({
@@ -22,7 +23,7 @@ export const useGetTodosByUserId = (userId: number) => {
 }
 
 export const useAddTodo = () => {
-    return useMutation<Todo, Error, TodoReq>({
+    return useMutation<Todo, CustomError, TodoReq>({
         mutationFn: async (todo) => {
             const { data } = await api.post<Todo>("/todo", todo)
             return data
@@ -34,7 +35,7 @@ export const useAddTodo = () => {
 }
 
 export const useDeleteTodo = () => {
-    return useMutation<void, Error, number>({
+    return useMutation<void, CustomError, number>({
         mutationFn: async (id) => {
             await api.delete("/todo", {
                 params: {
@@ -49,7 +50,7 @@ export const useDeleteTodo = () => {
 }
 
 export const useUpdateTodo = () => {
-    return useMutation<void, Error, UpdateTodoReq>({
+    return useMutation<void, CustomError, UpdateTodoReq>({
         mutationFn: async ({ id, done }) => {
             await api.put("/todo", {
                 id,

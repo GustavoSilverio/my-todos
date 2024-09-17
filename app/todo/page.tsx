@@ -9,10 +9,13 @@ import { ArrowLeft, Plus } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/stores/authStore";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Todo() {
 
 	const { userId } = useAuthStore()
+
+	const { toast } = useToast()
 
 	const router = useRouter()
 
@@ -30,7 +33,14 @@ export default function Todo() {
 	const [title, setTitle] = useState("");
 
 	const handleAddTodo = async () => {
-		await addTodo({ title, userId: userId as number }).then(() => setTitle(""))
+		if (!title)
+			toast({
+				title: "Error",
+				description: "Please enter a title for the todo.",
+				variant: "destructive",
+			})
+		else
+			await addTodo({ title, userId: userId as number }).then(() => setTitle(""))
 	}
 
 	const handleExit = () => {
@@ -55,7 +65,13 @@ export default function Todo() {
 				</div>
 
 				<div className="flex flex-col gap-3 w-full">
-					<div className="flex w-full gap-3">
+					<form
+						className="flex w-full gap-3"
+						onSubmit={(e) => {
+							e.preventDefault()
+							handleAddTodo()
+						}}
+					>
 						<Input
 							type="text"
 							placeholder="Buy more milk..."
@@ -67,13 +83,13 @@ export default function Todo() {
 
 						<Button
 							className="w-[51px] p-0 bg-slate-900 border-none"
+							type="submit"
 							variant="secondary"
-							onClick={handleAddTodo}
 							disabled={isFetchingTodos || isLoadingAddTodo}
 						>
 							<Plus color="#F8FAFC" />
 						</Button>
-					</div>
+					</form>
 
 					<div className="flex h-[168px] flex-col gap-3 overflow-y-auto">
 						{isLoadingTodos ? (
