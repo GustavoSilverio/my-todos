@@ -13,6 +13,9 @@ export async function GET(request: NextRequest) {
     const todos = await prisma.todo.findMany({
         where: {
             userId: Number(userId),
+        },
+        orderBy: {
+            createdAt: "desc",
         }
     })
 

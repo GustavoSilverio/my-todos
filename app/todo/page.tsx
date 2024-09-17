@@ -87,19 +87,13 @@ export default function Todo() {
 							</>
 						) : (
 							todos && todos.length > 0 ? (
-								<>
-									{todos.map((todo) => (
-										<TodoItem
-											key={todo.id}
-											isDone={todo.done}
-											{...todo}
-										/>
-									))}
-
-									{(isLoadingAddTodo || isFetchingTodos) &&
-										<Skeleton className="w-full h-6" />
-									}
-								</>
+								todos.map((todo) => (
+									<TodoItem
+										key={todo.id}
+										isDone={todo.done}
+										{...todo}
+									/>
+								))
 							) : (
 								<p className="text-center text-slate-400">
 									no todos found :(

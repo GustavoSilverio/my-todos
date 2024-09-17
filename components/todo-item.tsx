@@ -2,6 +2,7 @@
 
 import { useDeleteTodo, useUpdateTodo } from "@/api/controllers/todo"
 import { Check, X } from "lucide-react"
+import { useState } from "react"
 
 interface TodoItemProps {
     id: number
@@ -12,15 +13,19 @@ interface TodoItemProps {
 export const TodoItem = ({
     id,
     title,
-    isDone,
+    isDone: initialIsDone,
 }: TodoItemProps) => {
+
+    const [isDone, setIsDone] = useState(initialIsDone);
 
     const {
         mutateAsync: deleteTodo,
+        isLoading: isLoadingDeleteTodo,
     } = useDeleteTodo()
 
     const {
         mutateAsync: updateTodo,
+        isLoading: isLoadingUpdateTodo,
     } = useUpdateTodo()
 
     const handleDeleteTodo = async (id: number) => {
@@ -28,6 +33,7 @@ export const TodoItem = ({
     }
 
     const handleUpdateTodo = async (id: number) => {
+        setIsDone(!isDone)
         await updateTodo({ id, done: !isDone })
     }
 
@@ -42,12 +48,14 @@ export const TodoItem = ({
             <div className="flex gap-1">
                 <button
                     onClick={() => handleUpdateTodo(id)}
+                    disabled={isLoadingUpdateTodo || isLoadingDeleteTodo}
                 >
                     <Check color="#F8FAFC" />
                 </button>
 
                 <button
                     onClick={() => handleDeleteTodo(id)}
+                    disabled={isLoadingUpdateTodo || isLoadingDeleteTodo}
                 >
                     <X color="#F8FAFC" />
                 </button>
